@@ -1,0 +1,430 @@
+@import "tailwindcss/base";
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
+
+.main-container {
+    margin-top:58px;
+    margin-left: 240px;
+    padding: 20px;
+}
+
+@media (max-width: 1279px){
+    .main-container {
+        margin-left: 0px;
+    }
+}
+
+.logo-size {
+  width: 133px;
+  height: 29px;
+}
+
+.paginate_button.page-item {
+    display: inline-block;
+}
+
+.form-control.form-control-sm {
+    display: none !important;
+}
+
+
+tbody tr {
+    border-bottom-width: 1px;
+}
+
+.mb_-9 {
+    margin-bottom: -9px;
+}
+
+
+.max-w-30em_cus {
+    width: 30em;
+}
+
+
+.cus_contaner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #d2d2d2;
+}
+
+tr td.last_td {
+    max-width: 130px !important;
+}
+
+.dataTables_empty {
+    text-align: center !important;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.showable_image:hover, .col_image img:hover {
+    cursor: pointer;
+}
+
+.h-customer-map {
+    height: calc(100vh - 200px);
+}
+
+#delete-confirm-modal {
+    z-index: 9999;
+    background-color: #dddddd66;
+}
+
+#delete-confirm-modal-content {
+    margin-top: calc((100vh - 200px)/2);
+}
+
+/***************** IMAGE MODAL CSS ****************/
+#image_show_modal {
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* The Modal (background) */
+.image-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 2050; /* Sit on top */
+  padding-top: 5vh; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+/* Modal Content (image) */
+.image-modal-content {
+  margin: auto;
+  display: block;
+  width: auto;
+  height: 90vh;
+}
+
+/* Add Animation */
+.image-modal-content, #caption {
+  -webkit-animation-name: zoom;
+  -webkit-animation-duration: 0.6s;
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoom {
+  from {-webkit-transform:scale(0)}
+  to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+  from {transform:scale(0)}
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+.image-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.image-modal-close:hover,
+.image-modal-close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  .image-modal-content {
+    width: 100%;
+  }
+}
+/***************** IMAGE MODAL CSS END ****************/
+
+
+li.relative a.sidebar-item-active {
+    --tw-text-opacity: 1;
+    color: rgb(37 99 235/var(--tw-text-opacity));
+    background-color: #60a5fa1a;
+}
+
+
+.cus-modal-margin-top {
+  margin-top: calc((100vh - 450px) / 2)
+}
+
+
+.cutom-modal {
+  z-index: 8888 !important;
+}
+
+
+/****************** toast css *****************************/
+:root {
+	--dark: #34495e;
+	--light: #fff;
+	--success: #0abf30;
+	--error: #f24d4c;
+	--warning: #e9bd0c;
+	--info: #3498db;
+}
+
+.notifications {
+	position: fixed;
+	top: 30px;
+	right: 20px;
+    z-index: 8888;
+    color: white;
+}
+
+.notifications :where(.toast, .column) {
+	display: flex;
+	align-items: center;
+}
+
+.notifications .toast {
+	width: 400px;
+	position: relative;
+	overflow: hidden;
+	list-style: none;
+	border-radius: 4px;
+	padding: 16px 17px;
+	margin-bottom: 10px;
+	background: var(--light);
+	justify-content: space-between;
+	animation: show_toast 0.3s ease forwards;
+}
+
+@keyframes show_toast {
+	0% {
+		transform: translateX(100%);
+	}
+	40% {
+		transform: translateX(-5%);
+	}
+	80% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-10%);
+	}
+}
+
+.notifications .toast.hide {
+	animation: hide_toast 0.3s ease forwards;
+}
+
+@keyframes hide_toast {
+	0% {
+		transform: translateX(-10%);
+	}
+	40% {
+		transform: translateX(0%);
+	}
+	80% {
+		transform: translateX(-5%);
+	}
+	100% {
+		transform: translateX(calc(100% + 20px));
+	}
+}
+
+.toast::before {
+	position: absolute;
+	content: '';
+	height: 3px;
+	width: 100%;
+	bottom: 0;
+	left: 0;
+	animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+	100% {
+		width: 0%;
+	}
+}
+
+.toast.success::before, .btn#success, .toast.success {
+	background: var(--success);
+}
+
+.toast.error::before, .btn#error, .toast.error {
+	background: var(--error);
+}
+
+.toast.warning::before, .btn#warning, .toast.warning {
+	background: var(--warning);
+}
+
+.toast.info::before, .btn#info, .toast.info {
+	background: var(--info);
+}
+
+.toast .column i {
+	font-size: 1.75rem;
+}
+
+.toast.success .column i {
+	color: var(--success);
+}
+
+.toast.error .column i {
+	color: var(--error);
+}
+
+.toast.warning .column i {
+	color: var(--warning);
+}
+
+.toast.info .column i {
+	color: var(--info);
+}
+
+.toast .column span {
+	font-size: 1.07rem;
+	margin-left: 12px;
+}
+
+.toast i:last-child {
+	color: #aeb0d7;
+	cursor: pointer;
+}
+
+.toast i:last-child:hover {
+	color: var(--dark);
+}
+
+@media screen and (max-width: 530px) {
+	.notifications {
+		width: 80%;
+	}
+
+	.notifications .toast {
+		width: 100%;
+		font-size: 1rem;
+		margin-left: 20px;
+	}
+
+	.buttons .btn {
+		margin: 0 1px;
+		font-size: 1.1rem;
+		padding: 8px 15px;
+	}
+}
+
+
+
+/****************** loading css *******************************************/
+
+.load-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+  }
+
+  .load-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-box-reflect: below 0 linear-gradient(transparent, transparent, #0005);
+  }
+
+  .load-box .loader {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    animation: animateLoading 2s linear infinite;
+  }
+
+  .load-box .loader:nth-child(2),
+  .load-box .loader:nth-child(4) {
+    animation-delay: -1s;
+    filter: hue-rotate(290deg);
+  }
+
+  @keyframes animateLoading {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .load-box .loader:nth-child(1)::before,
+  .load-box .loader:nth-child(2)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to top, transparent, rgba(0, 255, 249, 0.5));
+    background-size: 25px 45px;
+    background-repeat: no-repeat;
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+  }
+
+  .load-container .loader i {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #00fff9;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00fff9,
+      0 0 20px #00fff9,
+      0 0 30px #00fff9,
+      0 0 40px #00fff9,
+      0 0 50px #00fff9,
+      0 0 60px #00fff9,
+      0 0 70px #00fff9,
+      0 0 80px #00fff9,
+      0 0 90px #00fff9,
+      0 0 100px #00fff9;
+    z-index: 10;
+  }
+
+  .load-box .loader span {
+    position: absolute;
+    inset: 5px;
+    background: white;
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+
+
+.dir-rtl {
+  direction: rtl;
+}
+
+li.relative a.sidebar-item-active {
+  --tw-text-opacity: 1;
+  color: rgb(37 99 235/var(--tw-text-opacity));
+  background-color: #60a5fa1a;
+}
