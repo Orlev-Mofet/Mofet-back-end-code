@@ -151,7 +151,14 @@
                         </td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $question->field }}</td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $question->user->surname }} ({{ $question->user->school_name }} {{ $question->user->city }})</td>
-                        <td class="whitespace-nowrap text-wrap px-6 py-4  w-3/4">{{ $question->question }}</td>
+                        <td class="whitespace-nowrap text-wrap px-6 py-4 w-3/4">
+                            <a href="{{ route('questions.show', [
+                               'question' => $question->id,
+                                'page' => request('page')
+                            ]) }}" class="text-blue-600 hover:underline">
+                                {{ $question->question }}
+                            </a>
+                        </td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $question->file_sort }}</td>
                         <td class="whitespace-nowrap px-6 py-4">
                             <a target="_blank" href="{{Storage::url($question->file_path)}}" class="text-blue-500">

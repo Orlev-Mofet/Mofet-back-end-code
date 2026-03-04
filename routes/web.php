@@ -71,7 +71,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'prevent-back-history'], func
         Route::get('answers/release_abuse', [ AnswerController::class , 'releaseAbuse'])->name("answers.release_abuse");
         Route::get('questions/release_abuse', [ QuestionController::class , 'releaseAbuse'])->name("questions.release_abuse");
         Route::get('questions/answers', [ QuestionController::class , 'answers'])->name("questions.answers");
+
+        Route::get('questions/{id}', [QuestionController::class, 'show'])->name('questions.show');
+        Route::put('questions/{id}', [QuestionController::class, 'update'])->name('questions.update');
         
+        Route::get('questions/answer/{id}', [QuestionController::class, 'showAnswer'])->name('questions.answer.show');
+        Route::put('questions/answer/{id}', [QuestionController::class, 'updateAnswer'])->name('questions.answer.update');
+        
+
         Route::get('admins/active', [ AdminController::class , 'active'])->name("admins.active");
         Route::get('admins/inactive', [ AdminController::class , 'inactive'])->name("admins.inactive");
         

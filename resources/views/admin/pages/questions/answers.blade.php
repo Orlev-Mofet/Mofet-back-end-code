@@ -101,7 +101,14 @@
                             </div>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $answer->field }}</td>
-                        <td class="whitespace-nowrap px-6 py-4 w-3/4">{{ $answer->answer }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 w-3/4">
+                            <a href="{{ route('questions.answer.show', [
+                                'id' => $answer->id,
+                                'questionId' => request('id')
+                            ]) }}" class="text-blue-600 hover:underline">
+                                {{ $answer->answer }}
+                            </a>
+                        </td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $answer->file_sort }}</td>
                         <td class="whitespace-nowrap px-6 py-4">
                             <a target="_blank" href="{{Storage::url($answer->file_path)}}" class="text-blue-500">

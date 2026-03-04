@@ -82,9 +82,24 @@ class QuestionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $question = Question::findOrFail($id);
+
+        return view('admin.pages.questions.show', compact('question'));
+    }
+
+     /**
+     * Display answer by id.
+     */
+    public function showAnswer(Request $request, $id)
+    {
+        $answer = Answer::where('id', $id)
+        ->where('question_id', $request->query('questionId'))
+        ->with('abuse_user')
+        ->firstOrFail();
+
+        return view('admin.pages.questions.answer', compact('answer'));
     }
 
     /**
@@ -98,9 +113,35 @@ class QuestionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $question = Question::findOrFail($id);
+
+        $question->question = $request->question;
+
+        $question->save();
+
+        return redirect()->route('questions.index', [
+            'page' => $request->page
+        ])->with('success', 'Question updated');
+    }
+
+
+    /**
+     * Update answer
+     */
+    public function updateAnswer(Request $request, $id)
+    {
+        $answer = Answer::findOrFail($id);
+
+        $answer->answer = $request->answer;
+
+        $answer->save();
+
+        return redirect()->route('questions.answers', [
+            'page' => $request->page,
+            'id' => $request->questionId
+        ])->with('success', 'Answer updated');
     }
 
     /**
