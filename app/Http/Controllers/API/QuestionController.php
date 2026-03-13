@@ -32,11 +32,11 @@ class QuestionController extends Controller
 
             // check wall
             if( $wall == "Mathematics" ) {
-                $query = $query->whereIn("field", [ "Mathematics", "Both"]);
+                $query = $query->whereIn("field", [ "Mathematics"]);
             } else if ( $wall == "Physics" ) {
-                $query = $query->whereIn("field", [ "Physics", "Both" ]);
+                $query = $query->whereIn("field", [ "Physics" ]);
             } else if ( $wall == "Both" ) {
-                $query = $query->whereIn("field", [ "Mathematics", "Physics", "Both" ]);
+                $query = $query->whereIn("field", [ "Both" ]);
             } else if ( $wall == "MyOnly" ) {
                 $user_id = $request->user_id;
 
