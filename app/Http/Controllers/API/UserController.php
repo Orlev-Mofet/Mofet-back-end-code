@@ -324,10 +324,16 @@ class UserController extends Controller
                 'email',
             ], 
             'password' => ['required'], 
+            'fcm' => ['nullable'],
         ]);
 
 
         $user = User::where('email', $request->email)->first();
+
+        if ($request->fcm) {
+            $user->fcm_token = $request->fcm;
+            $user->save();
+        }
 
         if( $user && Hash::check($request->password, $user->password)){
             $otp = Otp::where([ 'phone_number' => $request->email ])
