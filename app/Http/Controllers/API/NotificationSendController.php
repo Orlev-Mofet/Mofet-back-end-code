@@ -15,7 +15,8 @@ class NotificationSendController extends Controller
 
         try {
             
-            $url = 'https://fcm.googleapis.com/fcm/send';
+            // $url = 'https://fcm.googleapis.com/fcm/send';
+            $url = 'https://fcm.googleapis.com/v1/projects/mofet-f354c/messages:send';
 
             $user = User::whereNotNull('fcm_token');
             $body = "New Push Notification";
@@ -43,7 +44,7 @@ class NotificationSendController extends Controller
             $serverKey = env("FIREBASE_SERVER_KEY");
         
             $data = [
-                "registration_ids" => $FcmToken,
+                "token" => $FcmToken,
                 "notification" => [
                     "title" => $request->query("sort"),
                     "body" => $body, 
@@ -52,7 +53,7 @@ class NotificationSendController extends Controller
             $encodedData = json_encode($data);
         
             $headers = [
-                'Authorization:key=' . $serverKey,
+                'Authorization: Bearer' . $serverKey,
                 'Content-Type: application/json',
             ];
         
