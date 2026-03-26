@@ -11,8 +11,6 @@ use Twilio\Rest\Client;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\URL;
 
-use Firebase\JWT\JWT;
-
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 use Hash;
