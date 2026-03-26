@@ -45,11 +45,17 @@ class AdminNotificationController extends Controller
         $client = new GoogleClient();
         $client->setAuthConfig(storage_path('app/firebase/service.json'));
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-        $accessToken = $client->fetchAccessTokenWithAssertion()['access_token'];
     
-        return $accessToken;
+        $tokenData = $client->fetchAccessTokenWithAssertion();
+    
+        Log::info(['google_token_response' => $tokenData]);
+    
+        if (!isset($tokenData['access_token'])) {
+            throw new \Exception('FCM auth failed: ' . json_encode($tokenData));
+        }
+    
+        return $tokenData['access_token'];
     }
-
 
     /**
      * Store a newly created resource in storage.
