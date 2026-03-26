@@ -11,6 +11,7 @@ use App\Models\AdminNotification;
 use App\Models\User;
 
 use Firebase\JWT\JWT;
+use Google\Client;
 
 class AdminNotificationController extends Controller
 {
@@ -42,30 +43,12 @@ class AdminNotificationController extends Controller
 
     private function getAccessToken($serviceAccount)
     {
-        $now = time();
-
-        $payload = [
-            "iss" => $serviceAccount['client_email'],
-            "scope" => "https://www.googleapis.com/auth/firebase.messaging",
-            "aud" => "https://oauth2.googleapis.com/token",
-            "iat" => $now,
-            "exp" => $now + 3600,
-        ];
-
-        $jwt = JWT::encode($payload, $serviceAccount['private_key'], 'RS256');
-
-        $ch = curl_init("https://oauth2.googleapis.com/token");
-
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-            "grant_type" => "urn:ietf:params:oauth:grant-type:jwt-bearer",
-            "assertion" => $jwt,
-        ]));
-
-        $response = json_decode(curl_exec($ch), true);
-
-        return $response['access_token'];
+        $client = new Client();
+        $client->setAuthConfig(storage_path('app/firebase/service.json'));
+        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+        $accessToken = $client->fetchAccessTokenWithAssertion()['access_token'];
+    
+        return $accessToken;
     }
 
 
