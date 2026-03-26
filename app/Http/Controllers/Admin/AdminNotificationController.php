@@ -76,8 +76,7 @@ class AdminNotificationController extends Controller
                 true
             );
     
-            $accessToken = $this->getAccessToken($serviceAccount);
-    
+           
             $url = 'https://fcm.googleapis.com/v1/projects/' . $serviceAccount['project_id'] . '/messages:send';
     
             $tokens = User::whereNotNull('fcm_token')
@@ -88,6 +87,9 @@ class AdminNotificationController extends Controller
             $fail = 0;
     
             foreach ($tokens as $token) {
+
+                $accessToken = $this->getAccessToken($serviceAccount);
+    
     
                 $payload = [
                     "message" => [
@@ -107,6 +109,10 @@ class AdminNotificationController extends Controller
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     "Authorization: Bearer " . $accessToken,
                     "Content-Type: application/json"
+                ]);
+
+                Log::info([
+                    'AUTH_HEADER' => "Authorization: Bearer " . $accessToken,
                 ]);
     
                 curl_setopt($ch, CURLOPT_POST, true);
