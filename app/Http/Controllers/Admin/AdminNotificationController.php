@@ -38,6 +38,35 @@ class AdminNotificationController extends Controller
         return view("admin.pages.notifications.create");
     }
 
+    private function getAccessToken($serviceAccount)
+    {
+        $now = time();
+
+        $payload = [
+            "iss" => $serviceAccount['client_email'],
+            "scope" => "https://www.googleapis.com/auth/firebase.messaging",
+            "aud" => "https://oauth2.googleapis.com/token",
+            "iat" => $now,
+            "exp" => $now + 3600,
+        ];
+
+        $jwt = JWT::encode($payload, $serviceAccount['private_key'], 'RS256');
+
+        $ch = curl_init("https://oauth2.googleapis.com/token");
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            "grant_type" => "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "assertion" => $jwt,
+        ]));
+
+        $response = json_decode(curl_exec($ch), true);
+
+        return $response['access_token'];
+    }
+
+
     /**
      * Store a newly created resource in storage.
      */
@@ -46,78 +75,94 @@ class AdminNotificationController extends Controller
         request()->validate([
             'content' => 'required',
         ]);
-
-        $url = 'https://fcm.googleapis.com/v1/projects/mofet-f354c/messages:send';
-
-        $user = User::whereNotNull('fcm_token');
-
-        $FcmToken = $user->pluck('fcm_token')->all();
-
-        $serverKey = env("FIREBASE_SERVER_KEY");
     
-        $data = [
-            "token" => $FcmToken,
-            "notification"  => [
-                "title"     => "admin_alarm",
-                "body"      => $request->content, 
-            ]
-        ];
-        $encodedData = json_encode($data);
+        try {
     
-        $headers = [
-            'Authorization: Bearer' . $serverKey,
-            'Content-Type: application/json',
-        ];
+            $serviceAccount = json_decode(
+                file_get_contents(storage_path('app/firebase/service.json')),
+                true
+            );
+    
+            $accessToken = $this->getAccessToken($serviceAccount);
+    
+            $url = 'https://fcm.googleapis.com/v1/projects/' . $serviceAccount['project_id'] . '/messages:send';
+    
+            $tokens = User::whereNotNull('fcm_token')
+                ->pluck('fcm_token')
+                ->all();
+    
+            $success = 0;
+            $fail = 0;
+    
+            foreach ($tokens as $token) {
+    
+                $payload = [
+                    "message" => [
+                        "token" => $token,
+                        "notification" => [
+                            "title" => "admin_alarm",
+                            "body" => $request->content,
+                        ],
+                        "data" => [
+                            "type" => "admin_alarm"
+                        ]
+                    ]
+                ];
+    
+                $ch = curl_init($url);
+    
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    "Authorization: Bearer " . $accessToken,
+                    "Content-Type: application/json"
+                ]);
+    
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+                $result = curl_exec($ch);
+    
+                $response = json_decode($result, true);
+    
+                if (isset($response['error'])) {
+    
+                    $fail++;
+    
+                    $errorCode = $response['error']['status'] ?? null;
 
-        $ch = curl_init();
-            
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        // Disabling SSL Certificate support temporarly
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
-        // Execute post
-        $result = curl_exec($ch);
-
-        Log::debug(["Curl result: ", $request->content, $FcmToken, $result]);
-
-        // $twilio = new Client(env('TWILIO_ACCOUNT_SID'), env('TWILIO_AUTH_TOKEN'));
-
-        // try {
-        //     $users = $user->get();
-
-        //     foreach ($users as $key => $user) {
-                
-        //         $message = $twilio->messages->create(
-        //             $user->phone_code.$user->phone_number,
-        //             [
-        //                 'from' => env('TWILIO_PHONE_NUMBER'),
-        //                 'body' => "Administrator notification : ".$request->content,
-        //             ]
-        //         );
-        //     }
-        // } catch (\Throwable $th) {
-        //     Log::debug([ "send twilio message error =======================", $th->getMessage() ] );
-        // }
-        
-
-        if ($result === FALSE) {
-            return redirect()->back();
-        } else {
-
-            $not                = new AdminNotification;
-            $not->content       = $request->content;
-            $not->time          = date('Y-m-d H:i:s');
+                    if ($errorCode === 'NOT_FOUND' || $errorCode === 'UNREGISTERED') {
+                        User::where('fcm_token', $token)->update(['fcm_token' => null]);
+                    }
+    
+                    Log::error(['FCM error', $response]);
+    
+                } else {
+                    $success++;
+                }
+    
+                curl_close($ch);
+            }
+    
+            Log::info([
+                'push_result',
+                'success' => $success,
+                'fail' => $fail
+            ]);
+    
+      
+            $not = new AdminNotification;
+            $not->content = $request->content;
+            $not->time = now();
             $not->save();
     
             return redirect('admin/admin_notification');
+    
+        } catch (\Throwable $th) {
+    
+            Log::error($th->getMessage());
+    
+            return redirect()->back();
         }
-
-
     }
 
     /**
