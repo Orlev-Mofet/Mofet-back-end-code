@@ -107,17 +107,17 @@ class AdminNotificationController extends Controller
                 $ch = curl_init($url);
     
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    "Authorization: Bearer " . $accessToken,
+                    "Authorization: Bearer " . trim($accessToken),
                     "Content-Type: application/json"
                 ]);
-
-                Log::info([
-                    'AUTH_HEADER' => "Authorization: Bearer " . $accessToken,
-                ]);
-    
+                
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                
+                curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     
                 $result = curl_exec($ch);
     
