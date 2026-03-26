@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Twilio\Rest\Client;
 
 use App\Models\AdminNotification;
 use App\Models\User;
 
 use Firebase\JWT\JWT;
-use Google\Client;
+use Google\Client as GoogleClient;
 
 class AdminNotificationController extends Controller
 {
@@ -43,7 +42,7 @@ class AdminNotificationController extends Controller
 
     private function getAccessToken($serviceAccount)
     {
-        $client = new Client();
+        $client = new GoogleClient();
         $client->setAuthConfig(storage_path('app/firebase/service.json'));
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
         $accessToken = $client->fetchAccessTokenWithAssertion()['access_token'];
