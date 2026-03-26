@@ -44,6 +44,16 @@ class AdminNotificationController extends Controller
     {
         $client = new GoogleClient();
         $client->setAuthConfig(storage_path('app/firebase/service.json'));
+
+    
+        $client->setAuthConfig([
+            'type' => 'service_account',
+            'project_id' => $serviceAccount['project_id'],
+            'private_key' => $serviceAccount['private_key'],
+            'client_email' => $serviceAccount['client_email'],
+        ]);
+
+
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
     
         $tokenData = $client->fetchAccessTokenWithAssertion();
