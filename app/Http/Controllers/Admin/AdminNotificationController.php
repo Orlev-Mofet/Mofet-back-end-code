@@ -50,6 +50,7 @@ class AdminNotificationController extends Controller
         ]);
     
         $tokens = User::whereNotNull('fcm_token')
+        ->orderBy('created_at', 'desc')
             ->pluck('fcm_token')
             ->toArray();
     
