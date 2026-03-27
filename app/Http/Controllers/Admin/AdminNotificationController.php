@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\AdminNotification;
 use App\Models\User;
 
-use App\Services\FcmService;
+use App\Http\Services\FcmService;
 
 class AdminNotificationController extends Controller
 {
