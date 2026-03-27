@@ -12,7 +12,7 @@ class FcmService
 
     public function __construct()
     {
-        $this->credentialsPath = storage_path('app/firebase/firebase.json');
+        $this->credentialsPath = storage_path('app/firebase/service.json');
         $json = json_decode(file_get_contents($this->credentialsPath), true);
 
         $this->projectId = $json['project_id'];
