@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\AdminNotification;
 use App\Models\User;
 
-use Firebase\JWT\JWT;
-use Google\Client as GoogleClient;
+use App\Services\FcmService;
 
 class AdminNotificationController extends Controller
 {
@@ -40,128 +39,67 @@ class AdminNotificationController extends Controller
         return view("admin.pages.notifications.create");
     }
 
-    private function getAccessToken($serviceAccount)
-    {
-        $client = new GoogleClient();
-        $client->setAuthConfig(storage_path('app/firebase/service.json'));
-
-        $client->setAuthConfig($serviceAccount);
-
-        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-    
-        $tokenData = $client->fetchAccessTokenWithAssertion();
-    
-        Log::info(['google_token_response' => $tokenData]);
-    
-        if (!isset($tokenData['access_token'])) {
-            throw new \Exception('FCM auth failed: ' . json_encode($tokenData));
-        }
-    
-        return $tokenData['access_token'];
-    }
-
+  
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, FcmService $fcm)
     {
-        request()->validate([
+        $request->validate([
             'content' => 'required',
         ]);
     
-        try {
+        $tokens = User::whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->toArray();
     
-            $serviceAccount = json_decode(
-                file_get_contents(storage_path('app/firebase/service.json')),
-                true
-            );
+        $success = 0;
+        $fail = 0;
     
-           
-            $url = 'https://fcm.googleapis.com/v1/projects/' . $serviceAccount['project_id'] . '/messages:send';
+        foreach ($tokens as $token) {
+            try {
+                $fcm->sendToToken(
+                    $token,
+                    'admin_alarm',
+                    $request->content,
+                    ['type' => 'admin_alarm']
+                );
     
-            $tokens = User::whereNotNull('fcm_token')
-                ->pluck('fcm_token')
-                ->all();
+                $success++;
     
-            $success = 0;
-            $fail = 0;
+            } catch (\Throwable $e) {
     
-            foreach ($tokens as $token) {
-
-                $accessToken = $this->getAccessToken($serviceAccount);
+                $fail++;
     
+                $message = $e->getMessage();
     
-                $payload = [
-                    "message" => [
-                        "token" => $token,
-                        "notification" => [
-                            "title" => "admin_alarm",
-                            "body" => $request->content,
-                        ],
-                        "data" => [
-                            "type" => "admin_alarm"
-                        ]
-                    ]
-                ];
+                $response = json_decode($message, true);
     
-                $ch = curl_init($url);
+                $errorCode = $response['error']['status'] ?? null;
     
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    "Authorization: Bearer " . trim($accessToken),
-                    "Content-Type: application/json"
-                ]);
-                
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                
-                curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-    
-                $result = curl_exec($ch);
-    
-                $response = json_decode($result, true);
-    
-                if (isset($response['error'])) {
-    
-                    $fail++;
-    
-                    $errorCode = $response['error']['status'] ?? null;
-
-                    if ($errorCode === 'NOT_FOUND' || $errorCode === 'UNREGISTERED') {
-                        User::where('fcm_token', $token)->update(['fcm_token' => null]);
-                    }
-    
-                    Log::error(['FCM error', $response]);
-    
-                } else {
-                    $success++;
+                if (in_array($errorCode, ['NOT_FOUND', 'UNREGISTERED'])) {
+                    User::where('fcm_token', $token)
+                        ->update(['fcm_token' => null]);
                 }
     
-                curl_close($ch);
+                Log::error('FCM error', [
+                    'token' => $token,
+                    'error' => $message
+                ]);
             }
-    
-            Log::info([
-                'push_result',
-                'success' => $success,
-                'fail' => $fail
-            ]);
-    
-      
-            $not = new AdminNotification;
-            $not->content = $request->content;
-            $not->time = now();
-            $not->save();
-    
-            return redirect('admin/admin_notification');
-    
-        } catch (\Throwable $th) {
-    
-            Log::error($th->getMessage());
-    
-            return redirect()->back();
         }
+    
+        Log::info('push_result', [
+            'success' => $success,
+            'fail' => $fail
+        ]);
+    
+        AdminNotification::create([
+            'content' => $request->content,
+            'time' => now(),
+        ]);
+    
+        return redirect('admin/admin_notification');
     }
 
     /**
