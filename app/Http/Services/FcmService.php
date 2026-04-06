@@ -51,6 +51,26 @@ class FcmService
                     'body' => $body,
                 ],
                 'data' => $data,
+        
+                'android' => [
+                    'priority' => 'HIGH',
+                    'notification' => [
+                        'channel_id' => 'default',
+                        'sound' => 'default',
+                    ],
+                ],
+        
+                'apns' => [
+                    'headers' => [
+                        'apns-priority' => '10',
+                    ],
+                    'payload' => [
+                        'aps' => [
+                            'sound' => 'default',
+                            'badge' => 1,
+                        ],
+                    ],
+                ],
             ],
         ];
 

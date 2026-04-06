@@ -15,25 +15,10 @@ class NotificationSendController extends Controller
 
         try {
             $user = User::whereNotNull('fcm_token');
-            $body = "New Push Notification";
-
-            $sort = $request->query('sort');
-            if( $sort == "question_Mathematics" || $sort == "question_Physics" ) {
-                $user = $user->whereNot('id', $request->query('id'));
-                $body = json_encode(array("question_id" => $request->query('question_id'), 'locale' => $request->query('locale')));
-            } else if( $sort == "answer"  ) {
-                $user = $user->whereNot('id', $request->query('id'));
-                $body = json_encode(array(
-                    "question_id" => $request->query('question_id'), 
-                    'locale' => $request->query('locale'), 
-                    'question_user_id' => $request->query('question_user_id'), 
-                    'field' => $request->query('field'), 
-                ));
-            } else if ($sort == "abuse_question") {
-                $user = $user->where('id', $request->query('user_id'));
-            } else if ($sort == "abuse_answer") {
-                $user = $user->where('id', $request->query('user_id'));
-            }
+            $body = $request->query("body");
+            $title = $request->query("title");
+            
+            $user = $user->where('id', $request->query('user_id'));
 
             $tokens = $user->pluck('fcm_token')->toArray();
 
@@ -41,7 +26,7 @@ class NotificationSendController extends Controller
                 try {
                     $fcm->sendToToken(
                         $token,
-                        $request->query("sort"),
+                        $title,
                         $body,
                         ['type' => 'push']
                     );
