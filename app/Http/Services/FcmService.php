@@ -67,7 +67,6 @@ class FcmService
                     'payload' => [
                         'aps' => [
                             'sound' => 'default',
-                            'badge' => 1,
                         ],
                     ],
                 ],
