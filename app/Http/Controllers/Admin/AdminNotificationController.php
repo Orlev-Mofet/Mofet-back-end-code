@@ -61,7 +61,7 @@ class AdminNotificationController extends Controller
             try {
                 $fcm->sendToToken(
                     $token,
-                    'admin_alarm',
+                    'Mofet',
                     $request->content,
                     ['type' => 'admin_alarm']
                 );
