@@ -18,7 +18,7 @@ class NotificationSendController extends Controller
             $body = $request->query("body");
             $title = $request->query("title");
             
-            $user = $user->where('id', $request->query('user_id'));
+            $user = $user->where('id', $request->query('id'));
 
             $tokens = $user->pluck('fcm_token')->toArray();
 
