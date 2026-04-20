@@ -18,7 +18,7 @@ class NotificationSendController extends Controller
             $body = $request->query("body");
             $title = $request->query("title");
             $field = $request->query("field");
-            $type = $request->query("field");
+            $type = $request->query("type");
 
             if($type == 'question') {
                 $field = $request->query("field");
