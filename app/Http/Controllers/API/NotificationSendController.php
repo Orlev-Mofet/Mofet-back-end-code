@@ -17,21 +17,54 @@ class NotificationSendController extends Controller
             $user = User::whereNotNull('fcm_token');
             $body = $request->query("body");
             $title = $request->query("title");
+            $field = $request->query("field");
+            $type = $request->query("field");
+
+            if($type == 'question') {
+                $field = $request->query("field");
+
+                Log::info('Incoming field:', ['field' => $field]);
             
-            $user = $user->where('id', $request->query('id'));
+                $users = User::whereNotNull('fcm_token')
+                    ->where(function ($query) use ($field) {
+                        $query->where('field_of_interest', $field) // exact match
+                              ->orWhere('field_of_interest', 'LIKE', "%$field%"); // fallback
+                    })
+                    ->get();
+            
+                Log::info('Matched users:', [
+                    'count' => $users->count(),
+                    'fields' => $users->pluck('field_of_interest'),
+                ]);
+            
+                foreach ($users as $userItem) {
+                    try {
+                        $fcm->sendToToken(
+                            $userItem->fcm_token,
+                            $title,
+                            $body,
+                            ['type' => 'question']
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error($e->getMessage());
+                    }
+                }
+            } else {
+                $user = $user->where('id', $request->query('id'));
+            
+                $tokens = $user->pluck('fcm_token')->toArray();
 
-            $tokens = $user->pluck('fcm_token')->toArray();
-
-            foreach ($tokens as $token) {
-                try {
-                    $fcm->sendToToken(
-                        $token,
-                        $title,
-                        $body,
-                        ['type' => 'push']
-                    );
-                } catch (\Throwable $e) {
-                    Log::error($e->getMessage());
+                foreach ($tokens as $token) {
+                    try {
+                        $fcm->sendToToken(
+                            $token,
+                            $title,
+                            $body,
+                            ['type' => 'push']
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error($e->getMessage());
+                    }
                 }
             }
 
@@ -46,6 +79,5 @@ class NotificationSendController extends Controller
                 "status" => "error"
             ], 422);
         }
-       
     }
 }
