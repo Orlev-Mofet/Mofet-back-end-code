@@ -22,15 +22,17 @@ class NotificationSendController extends Controller
 
             if($type == 'question') {
                 $field = $request->query("field");
+                $currentUserId = $request->query("id");
 
                 Log::info('Incoming field:', ['field' => $field]);
             
                 $users = User::whereNotNull('fcm_token')
-                    ->where(function ($query) use ($field) {
-                        $query->where('field_of_interest', $field) // exact match
-                              ->orWhere('field_of_interest', 'LIKE', "%$field%"); // fallback
-                    })
-                    ->get();
+                ->where('id', '!=', $currentUserId) 
+                ->where(function ($query) use ($field) {
+                    $query->where('field_of_interest', $field)
+                          ->orWhere('field_of_interest', 'LIKE', "%$field%");
+                })
+                ->get();
             
                 Log::info('Matched users:', [
                     'count' => $users->count(),
