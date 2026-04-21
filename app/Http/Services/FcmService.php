@@ -37,6 +37,45 @@ class FcmService
         return $token['access_token'];
     }
 
+    public function sendToTopic(string $topic, array $data = [])
+{
+    $accessToken = $this->getAccessToken();
+
+    $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
+
+    $payload = [
+        'message' => [
+            'topic' => $topic,
+
+            'data' => $data,
+
+            'android' => [
+                'priority' => 'HIGH',
+            ],
+
+            'apns' => [
+                'headers' => [
+                    'apns-priority' => '5',
+                ],
+                'payload' => [
+                    'aps' => [
+                        'content-available' => 1,
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $response = Http::withToken($accessToken)
+        ->post($url, $payload);
+
+    if (!$response->successful()) {
+        throw new \Exception('FCM Error: ' . $response->body());
+    }
+
+    return $response->json();
+}
+
     public function sendToToken(string $fcmToken, string $title, string $body, array $data = [])
     {
         $accessToken = $this->getAccessToken();

@@ -70,6 +70,10 @@ class NotificationSendController extends Controller
                 }
             }
 
+            $fcm->sendToTopic('questionsUpdate', [
+                'type' => 'question',
+            ]);
+
             return response()->json([
                 'data' => null, 
                 "status" => "success"
