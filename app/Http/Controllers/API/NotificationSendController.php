@@ -24,7 +24,7 @@ class NotificationSendController extends Controller
                 $field = $request->query("field");
                 $currentUserId = $request->query("id");
 
-                Log::info('Incoming field:', ['field' => $field]);
+                // Log::info('Incoming field:', ['field' => $field]);
             
                 $users = User::whereNotNull('fcm_token')
                 ->where('id', '!=', $currentUserId) 
