@@ -20,55 +20,55 @@ class NotificationSendController extends Controller
             $field = $request->query("field");
             $type = $request->query("type");
 
-            // if($type == 'question') {
-            //     $field = $request->query("field");
-            //     $currentUserId = $request->query("id");
+            if($type == 'question') {
+                $field = $request->query("field");
+                $currentUserId = $request->query("id");
 
-            //     // Log::info('Incoming field:', ['field' => $field]);
+                // Log::info('Incoming field:', ['field' => $field]);
             
-            //     $users = User::whereNotNull('fcm_token')
-            //     ->where('id', '!=', $currentUserId) 
-            //     ->where(function ($query) use ($field) {
-            //         $query->where('field_of_interest', $field)
-            //               ->orWhere('field_of_interest', 'LIKE', "%$field%");
-            //     })
-            //     ->get();
+                $users = User::whereNotNull('fcm_token')
+                ->where('id', '!=', $currentUserId) 
+                ->where(function ($query) use ($field) {
+                    $query->where('field_of_interest', $field)
+                          ->orWhere('field_of_interest', 'LIKE', "%$field%");
+                })
+                ->get();
             
-            //     Log::info('Matched users:', [
-            //         'count' => $users->count(),
-            //         'fields' => $users->pluck('field_of_interest'),
-            //     ]);
+                Log::info('Matched users:', [
+                    'count' => $users->count(),
+                    'fields' => $users->pluck('field_of_interest'),
+                ]);
             
-            //     foreach ($users as $userItem) {
-            //         try {
-            //             $fcm->sendToToken(
-            //                 $userItem->fcm_token,
-            //                 $title,
-            //                 $body,
-            //                 ['type' => 'question']
-            //             );
-            //         } catch (\Throwable $e) {
-            //             Log::error($e->getMessage());
-            //         }
-            //     }
-            // } else {
-            //     $user = $user->where('id', $request->query('id'));
+                foreach ($users as $userItem) {
+                    try {
+                        $fcm->sendToToken(
+                            $userItem->fcm_token,
+                            $title,
+                            $body,
+                            ['type' => 'question']
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error($e->getMessage());
+                    }
+                }
+            } else {
+                $user = $user->where('id', $request->query('id'));
             
-            //     $tokens = $user->pluck('fcm_token')->toArray();
+                $tokens = $user->pluck('fcm_token')->toArray();
 
-            //     foreach ($tokens as $token) {
-            //         try {
-            //             $fcm->sendToToken(
-            //                 $token,
-            //                 $title,
-            //                 $body,
-            //                 ['type' => 'push']
-            //             );
-            //         } catch (\Throwable $e) {
-            //             Log::error($e->getMessage());
-            //         }
-            //     }
-            // }
+                foreach ($tokens as $token) {
+                    try {
+                        $fcm->sendToToken(
+                            $token,
+                            $title,
+                            $body,
+                            ['type' => 'push']
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error($e->getMessage());
+                    }
+                }
+            }
 
             $fcm->sendToTopic('questionsUpdate', [
                 'type' => 'question',
