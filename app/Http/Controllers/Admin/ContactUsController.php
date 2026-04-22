@@ -12,10 +12,24 @@ class ContactUsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $contact_us = ContactUs::orderBy("time", "DESC")->paginate(10);
-
+        $sort = $request->query('sort', 'desc');
+    
+        if (!in_array($sort, ['asc', 'desc'])) {
+            $sort = 'desc';
+        }
+    
+        $contact_us = ContactUs::query()
+    
+            ->when($request->query('content'), function ($q) use ($request) {
+                $q->where('content', 'LIKE', '%' . $request->query('content') . '%');
+            })
+    
+            ->orderBy('time', $sort)
+            ->paginate(10)
+            ->withQueryString();
+    
         return view("admin.pages.contact_us.index", compact("contact_us"));
     }
 

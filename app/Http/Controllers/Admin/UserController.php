@@ -207,52 +207,62 @@ class UserController extends Controller
 
 
     public function showAllData(Request $request) 
-    {
-        $phone_number = $request->query("phone_number");
-        $users = User::whereRaw(DB::raw("CONCAT(phone_code, phone_number) LIKE '%$phone_number%'"));
+{
+    $phoneNumber = $request->query("phone_number");
 
-        if( $request->query("first_name") ) {
-            $users = $users->where("first_name", "LIKE", "%".$request->query("first_name")."%");
-        }
-        if( $request->query("surname") ) {
-            $users = $users->where("surname", "LIKE", "%".$request->query("surname")."%");
-        }
-        if( $request->query("year_of_birth") ) {
-            $users = $users->where("year_of_birth", "LIKE", "%".$request->query("year_of_birth")."%");
-        }
-        if( $request->query("school_name") ) {
-            $users = $users->where("school_name", "LIKE", "%".$request->query("school_name")."%");
-        }
-        if( $request->query("city") ) {
-            $users = $users->where("city", "LIKE", "%".$request->query("city")."%");
-        }
-        if( $request->query("gender") ) {
-            $users = $users->where("gender", "LIKE", "%".$request->query("gender")."%");
-        }
-        if( $request->query("grade") ) {
-            $users = $users->where("grade", "LIKE", "%".$request->query("grade")."%");
-        }
-        if( $request->query("field_of_interest") ) {
-            $users = $users->where("field_of_interest", "LIKE", "%".$request->query("field_of_interest")."%");
-        }
-        $users = $users->paginate();
+    $users = User::query()
+        ->when($phoneNumber, function ($q) use ($phoneNumber) {
+            $q->whereRaw(
+                "CONCAT(phone_code, phone_number) LIKE ?",
+                ["%{$phoneNumber}%"]
+            );
+        })
+        ->when($request->query("first_name"), fn($q) =>
+            $q->where("first_name", "LIKE", "%".$request->query("first_name")."%")
+        )
+        ->when($request->query("surname"), fn($q) =>
+            $q->where("surname", "LIKE", "%".$request->query("surname")."%")
+        )
+        ->when($request->query("year_of_birth"), fn($q) =>
+            $q->where("year_of_birth", "LIKE", "%".$request->query("year_of_birth")."%")
+        )
+        ->when($request->query("school_name"), fn($q) =>
+            $q->where("school_name", "LIKE", "%".$request->query("school_name")."%")
+        )
+        ->when($request->query("city"), fn($q) =>
+            $q->where("city", "LIKE", "%".$request->query("city")."%")
+        )
+        ->when($request->query("gender"), fn($q) =>
+            $q->where("gender", "LIKE", "%".$request->query("gender")."%")
+        )
+        ->when($request->query("grade"), fn($q) =>
+            $q->where("grade", "LIKE", "%".$request->query("grade")."%")
+        )
+        ->when($request->query("field_of_interest"), fn($q) =>
+            $q->where("field_of_interest", "LIKE", "%".$request->query("field_of_interest")."%")
+        )
+        ->paginate(10)
+        ->withQueryString();
 
-        $questions = [];
-        $answers = [];
-        if( $request->query("user_id") ) {
-            $questions = Question::where('user_id', $request->query("user_id"))->get();
-            if( $request->query("question_id") ) {
-                $answers = Answer::where([ 
-                    ['question_id', "=", $request->query("question_id")], 
-                    ['user_id', "=", $request->query("user_id")] 
-                ])->get();
-            } else {
-                $answers = Answer::where('user_id', $request->query("user_id"))->get();
-            }
-        }
+    $questions = collect();
+    $answers = collect();
 
-        
+    if ($request->query("user_id")) {
 
-        return view("admin.pages.show_all_data.index", compact('users', 'questions', 'answers'));
+        $userId = $request->query("user_id");
+
+        $questions = Question::where('user_id', $userId)->get();
+
+        $answers = Answer::with([
+                'user:id,phone_code,phone_number'
+            ])
+            ->where('user_id', $userId)
+            ->when($request->query("question_id"), fn($q) =>
+                $q->where('question_id', $request->query("question_id"))
+            )
+            ->get();
     }
+
+    return view("admin.pages.show_all_data.index", compact('users', 'questions', 'answers'));
+}
 }

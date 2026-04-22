@@ -160,9 +160,23 @@
                             </td>
                             <td class="whitespace-nowrap px-2 py-4">{{ $question->file_sort }}</td>
                             <td class="whitespace-nowrap px-2 py-4">
-                                <a target="_blank" href="{{Storage::url($question->file_path)}}" class="text-blue-500">
-                                    {{ $question->file_name }}
-                                </a>
+                                @if($question->file_path)
+                                    <div class="flex items-center gap-2">
+
+                                        <img 
+                                            style="object-fit: cover; width: 45px; height: 45px; border-radius: 12px"
+                                            src="{{ Storage::url($question->file_path) }}"
+                                            alt=""
+                                        />
+
+                                        <a target="_blank"
+                                        href="{{ Storage::url($question->file_path) }}"
+                                        class="text-blue-500">
+                                            {{ $question->file_name }}
+                                        </a>
+
+                                    </div>
+                                @endif
                             </td>
                             <td class="whitespace-nowrap px-2 py-4 text-center flex flex-col justify-center items-center ">
                                 @if($question->is_abused === "1")
@@ -245,6 +259,7 @@
                     <thead class="border-b font-medium dark:border-neutral-500">
                         <tr>
                             <th scope="col" class="px-6">#</th>
+                            <th scope="col" class="px-6">Phone Number</th>
                             <th scope="col" class="px-6">Field</th>
                             <th scope="col" class="px-6 w-3/4">Answer</th>
                             <th scope="col" class="px-6">File Sort</th>
@@ -258,7 +273,7 @@
                         @foreach($answers as $answer)
                         <tr class="border-b dark:border-neutral-500">
                             <td class="whitespace-nowrap px-6 py-4 font-medium">{{$i}}</td>
-
+                            <td class="whitespace-nowrap px-6 py-4">{{ $answer->user->phone_code }} {{ $answer->user->phone_number }}</td>
                             <td class="whitespace-nowrap px-6 py-4">{{ $answer->field }}</td>
                             <td class="whitespace-nowrap px-6 py-4 w-3/4 text-wrap">
                                 {{ $answer->answer }}

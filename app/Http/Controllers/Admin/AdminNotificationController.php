@@ -18,16 +18,27 @@ class AdminNotificationController extends Controller
      */
     public function index(Request $request)
     {
+        $sort = $request->query('sort', 'desc');
+   
+        if (!in_array($sort, ['asc', 'desc'])) {
+            $sort = 'desc';
+        }
+    
         $notifications = AdminNotification::whereNotNull("content");
-        if( $request->query("content") ) {
-            $notifications = $notifications->where("content", "LIKE", "%".$request->query("content")."%");
+    
+        if ($request->query("content")) {
+            $notifications->where("content", "LIKE", "%" . $request->query("content") . "%");
         }
-        if( $request->query("time") ) {
-            $notifications = $notifications->where("time", "LIKE", "%".$request->query("time")."%");
+    
+        if ($request->query("time")) {
+            $notifications->where("time", "LIKE", "%" . $request->query("time") . "%");
         }
-
-        $notifications = $notifications->orderBy("time", "DESC")->paginate(10);
-
+    
+        $notifications = $notifications
+            ->orderBy("time", $sort)
+            ->paginate(10)
+            ->withQueryString(); 
+    
         return view("admin.pages.notifications.index", compact("notifications"));
     }
 
