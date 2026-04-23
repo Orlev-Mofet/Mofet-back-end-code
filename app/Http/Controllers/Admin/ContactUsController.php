@@ -15,21 +15,29 @@ class ContactUsController extends Controller
     public function index(Request $request)
     {
         $sort = $request->query('sort', 'desc');
-    
         if (!in_array($sort, ['asc', 'desc'])) {
             $sort = 'desc';
         }
-    
+
         $contact_us = ContactUs::query()
-    
+
             ->when($request->query('content'), function ($q) use ($request) {
-                $q->where('content', 'LIKE', '%' . $request->query('content') . '%');
+
+            
+                $search = trim($request->query('content'));
+
+            
+                $words = preg_split('/\s+/', $search);
+
+                foreach ($words as $word) {
+                    $q->where('content', 'LIKE', '%' . $word . '%');
+                }
             })
-    
+
             ->orderBy('time', $sort)
             ->paginate(10)
             ->withQueryString();
-    
+
         return view("admin.pages.contact_us.index", compact("contact_us"));
     }
 
