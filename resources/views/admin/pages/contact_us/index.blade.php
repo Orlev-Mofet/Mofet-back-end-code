@@ -70,7 +70,7 @@
                                name="user"
                                value="{{ request('user') }}"
                                class="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
-                               placeholder="User">
+                               placeholder="User: First name, Surname">
                     </td>
 
                     {{-- CONTENT --}}
