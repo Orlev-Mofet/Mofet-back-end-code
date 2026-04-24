@@ -55,6 +55,24 @@
                         </button>
                     </td>
 
+                    {{-- TIME --}}
+                    <td class="px-2 py-4 w-48">
+                        <input type="text"
+                               name="time"
+                               value="{{ request('time') }}"
+                               class="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                               placeholder="2024-01-01 12:00:00">
+                    </td>
+
+                    {{-- USER --}}
+                    <td class="px-2 py-4 w-48">
+                        <input type="text"
+                               name="user"
+                               value="{{ request('user') }}"
+                               class="block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                               placeholder="User">
+                    </td>
+
                     {{-- CONTENT --}}
                     <td colspan="3" class="px-2 py-4">
                         <input type="text"
