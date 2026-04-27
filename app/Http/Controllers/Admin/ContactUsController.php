@@ -22,7 +22,6 @@ class ContactUsController extends Controller
     
         $contact_us = ContactUs::with('user');
     
-        // 🔎 CONTENT
         if ($request->query("content")) {
     
             $search = trim($request->query("content"));
@@ -33,7 +32,6 @@ class ContactUsController extends Controller
             }
         }
     
-        // 🕒 TIME (як ти хотів — окремо)
         if ($request->query("time")) {
     
             $input = trim($request->query("time"));
